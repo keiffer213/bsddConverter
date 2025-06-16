@@ -1,5 +1,3 @@
-
-
 import os
 from tkinter import Tk, Frame, Label, Entry, Button, Checkbutton, BooleanVar, END, filedialog, messagebox
 from mapper import run_excel2bsdd_conversion
@@ -26,14 +24,18 @@ def select_output_file(entry):
 
 def run_converter(excel_entry, output_name_entry, nulls_var):
     excel_path = excel_entry.get().strip()
-    output_name_entry = output_name_entry.get().strip()
+    output_name = output_name_entry.get().strip()
     without_nulls = nulls_var.get()
 
-    if not (excel_path and output_name_entry):
+    if not (excel_path and output_name):
         messagebox.showerror("Missing Info", "Please fill in all fields.")
         return
 
-    output_path = f"{output_name_entry}.json"
+    # Create result directory if it doesn't exist
+    RESULT_DIR = os.path.join(PROJECT_ROOT, 'result')
+    os.makedirs(RESULT_DIR, exist_ok=True)
+
+    output_path = os.path.join(RESULT_DIR, f"{output_name}.json")
 
     try:
         run_excel2bsdd_conversion(excel_path, TEMPLATE_PATH, output_path, remove_nulls=without_nulls)
