@@ -1,0 +1,20 @@
+[project]
+name = "bsdd-converter"
+version = "0.1.0"
+description = "Convert Excel bSDD templates to JSON via a simple GUI"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+  { name="Keiffer Tan" },
+]
+dependencies = [
+  "pandas",
+  "openpyxl",
+  "tqdm",
+  "numpy",
+]
+
+[project.scripts]
+# after pip install ., user can run `bsdd-converter` on the command line
+bsdd-converter = "bsddconverter.gui:main"
