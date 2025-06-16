@@ -8,6 +8,27 @@ import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning, module="openpyxl")
 
+def run_excel2bsdd_conversion(excel_path, template_path, output_path, remove_nulls=False):
+    """
+    Main function to map excel file to bsdd json file
+
+    :param excel_path: Path to an excel file 
+    :type excel_path: str
+    :param template_path: Path to JSON template file
+    :type template_path: str
+    :param output_path: Path to output JSON file
+    :type output_path: str
+    """
+
+    excel = load_excel(excel_path)
+    tpl = json.load(open(template_path, encoding="utf-8"))
+    result = excel2bsdd(excel, tpl)
+
+    if remove_nulls:
+        result = clean_nones(result)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+
 def load_excel(EXCEL_PATH):
     """
     Parses an excel file from path. Note: only works on provided template file.
@@ -32,28 +53,6 @@ def load_excel(EXCEL_PATH):
     excel['allowedvalue'] = pd.read_excel(excel_df, 'AllowedValue', skiprows=6, usecols="C:J", true_values="TRUE", keep_default_na=False) 
     excel['propertyrelation'] = pd.read_excel(excel_df, 'PropertyRelation', skiprows=6, usecols="C:G", true_values="TRUE", keep_default_na=False)
     return excel
-
-def run_excel2bsdd_conversion(excel_path, template_path, output_path, remove_nulls=False):
-    """
-    Main function to map excel file to bsdd json file
-
-    :param excel_path: Path to an excel file 
-    :type excel_path: str
-    :param template_path: Path to JSON template file
-    :type template_path: str
-    :param output_path: Path to output JSON file
-    :type output_path: str
-    """
-
-    excel = load_excel(excel_path)
-    tpl = json.load(open(template_path, encoding="utf-8"))
-    result = excel2bsdd(excel, tpl)
-
-    if remove_nulls:
-        result = clean_nones(result)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False, indent=2)
-
 
 def map_data(excel_data, bsdd_part_template, name=""):
     """
@@ -174,6 +173,7 @@ def excel2bsdd(excel, bsdd_template):
         for item in bsdd_data['Classes']:
             if item["Code"] == related:
                 item['ClassRelations'].append(cls_rel)
+                found_it = True
                 break
         if not found_it:
             raise Exception(f"Class '{related}' not found in the spreadsheet, so couldn't append the class relation: '{cls_rel}'!")
