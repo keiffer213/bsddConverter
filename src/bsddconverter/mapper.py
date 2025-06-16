@@ -85,6 +85,7 @@ def map_data(excel_data, bsdd_part_template, name=""):
             new_object = deepcopy(template)
             for column_name, column_data in row.items():
                 if column_name in template:
+                    # Convert date to: 2022-05-12T00:00:00+02:00
                     if isinstance(column_data, pd._libs.tslibs.timestamps.Timestamp):
                         column_data = column_data.isoformat()
                     elif "Date" in column_name and column_data:
@@ -93,6 +94,8 @@ def map_data(excel_data, bsdd_part_template, name=""):
                         column_data = int(column_data)
                     elif column_name in ["Uid","Example","Value","PredefinedValue"] and not isinstance(column_data, str):
                         column_data = str(column_data)
+
+                    # Process lists
                     if isinstance(column_data, str):
                         if column_data.startswith("[") and column_data.endswith("]"):
                             if column_data == "[]":
@@ -104,9 +107,14 @@ def map_data(excel_data, bsdd_part_template, name=""):
                     if column_name in ["RelatedIfcEntityNamesList","Units","ReplacedObjectCodes","ReplacingObjectCodes","CountriesOfUse","SubdivisionsOfUse"]:
                         if not isinstance(column_data, list):
                             column_data = [column_data]
+                    # append
                     new_object[column_name] = column_data
                 elif column_name in ('(Origin Class Code)','(Origin Property Code)','(Origin ClassProperty Code)'):
                     new_object[column_name] = column_data
+                else:
+                    print(f"WARNING! No such property as '{column_name}' in the JSON template! It will NOT be added to the JSON file.")
+                    # new_object[column_name] = column_data
+            # bsdd_part_template.append(new_object)
             new_objects.append(new_object)
     return new_objects
 
@@ -138,29 +146,42 @@ def excel2bsdd(excel, bsdd_template):
     """
 
     bsdd_data = map_data(excel['dictionary'], bsdd_template, "dictionary")[0]
+
+    # process basic concepts
     bsdd_data['Classes'] = map_data(excel['class'], bsdd_template['Classes'], "classes")
     bsdd_data['Properties'] = map_data(excel['property'], bsdd_template['Properties'], "properties")
 
+    # process ClassProperty
     cls_props = map_data(excel['classproperty'], bsdd_template['Classes'][0]['ClassProperties'], "class-properties")
     for cls_prop in cls_props:
         related = cls_prop['(Origin Class Code)']
         cls_prop.pop("(Origin Class Code)")
+        found_it = False
         for item in bsdd_data['Classes']:
             if item["Code"] == related:
                 item['ClassProperties'].append(cls_prop)
+                found_it = True
                 break
+        if not found_it:
+            raise Exception(f"Class '{related}' not found in the spreadsheet, so couldn't append the class property: '{cls_prop}'!")
 
+    # process ClassRelation
     cls_rels = map_data(excel['classrelation'], bsdd_template['Classes'][0]['ClassRelations'], "class-relations")
     for cls_rel in cls_rels:
         related = cls_rel['(Origin Class Code)']
         cls_rel.pop("(Origin Class Code)")
+        found_it = False
         for item in bsdd_data['Classes']:
             if item["Code"] == related:
                 item['ClassRelations'].append(cls_rel)
                 break
+        if not found_it:
+            raise Exception(f"Class '{related}' not found in the spreadsheet, so couldn't append the class relation: '{cls_rel}'!")
 
+    # process AllowedValue
     allowed_vals = map_data(excel['allowedvalue'], bsdd_template['Properties'][0]['AllowedValues'], "allowed-values")
     for allowed_val in allowed_vals:
+        # Only one of two code columns is possible
         if allowed_val['(Origin Property Code)']:
             relToProperty = True
             related = allowed_val['(Origin Property Code)']
@@ -168,28 +189,43 @@ def excel2bsdd(excel, bsdd_template):
             relToProperty = False
             related = allowed_val['(Origin ClassProperty Code)']
         else:
-            continue
+            print("WARNING! Allowed value without origin property or classProperty code! It will NOT be added to the JSON file.")
         allowed_val.pop("(Origin Property Code)")
         allowed_val.pop("(Origin ClassProperty Code)")
         if relToProperty:
+            # iterate all properties and add AllowedValue if such property is present in the spreadsheet
+            found_it = False
             for item in bsdd_data['Properties']:
                 if item['Code'] == related:
                     item['AllowedValues'].append(allowed_val)
+                    found_it = True
                     break
+            if not found_it:
+                raise Exception(f"Property '{related}' not found in the spreadsheet, so couldn't append the e {allowed_val}!")
         else:
+            # iterate all classes to find the one referenced by the property AllowedValue
+            found_it = False
             for cl in bsdd_data['Classes']:
                 for item in cl['ClassProperties']:
                     if item["Code"] == related:
                         item['AllowedValues'].append(allowed_val)
+                        found_it = True
                         break
+            if not found_it:
+                raise Exception(f"Class '{related}' not found in the spreadsheet, so couldn't append the e {allowed_val}!")
 
+    # process PropertyRelation
     prop_rels = map_data(excel['propertyrelation'], bsdd_template['Properties'][0]['PropertyRelations'], "property-relations")
     for prop_rel in prop_rels:
         related = prop_rel['(Origin Property Code)']
         prop_rel.pop("(Origin Property Code)")
+        found_it = False
         for item in bsdd_data['Properties']:
             if item["Code"] == related:
                 item['PropertyRelations'].append(prop_rel)
+                found_it = True
                 break
+        if not found_it:
+            raise Exception(f"Class '{related}' not found in the spreadsheet, so couldn't append the value {prop_rel}!")
 
     return bsdd_data
