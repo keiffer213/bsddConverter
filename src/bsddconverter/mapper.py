@@ -1,3 +1,4 @@
+import os
 import json
 import numpy as np
 import pandas as pd
@@ -20,12 +21,24 @@ def run_excel2bsdd_conversion(excel_path, template_path, output_path, remove_nul
     :type output_path: str
     """
 
+    # Check if files exist
+    if not os.path.exists(excel_path):
+        raise FileNotFoundError(f"Excel file not found: {excel_path}")
+    if not os.path.exists(template_path):
+        raise FileNotFoundError(f"Template file not found: {template_path}")
+
+    # Load files
+    with open(template_path, encoding="utf-8") as f:
+        tpl = json.load(f)
+
     excel = load_excel(excel_path)
-    tpl = json.load(open(template_path, encoding="utf-8"))
     result = excel2bsdd(excel, tpl)
 
+    # Save file
     if remove_nulls:
         result = clean_nones(result)
+    if result is None:
+        raise ValueError("Conversion result is None. Please check input files.")
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
