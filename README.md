@@ -2,6 +2,20 @@
 
 A desktop Python application that converts a specially structured Excel file into a valid bSDD-compliant JSON document.
 
+```markdown
+📁 Recommended Project Structure:
+.
+├── src/
+│   └── bsddconverter/
+│       ├── gui.py
+│       ├── mapper.py
+│       ├── __init__.py
+├── templates/
+├── data/
+├── requirements.txt
+├── pyproject.toml
+```
+
 ## Features
 
 - Built-in GUI using Tkinter
@@ -25,19 +39,7 @@ Navigate to the root folder then to \src and use:
 
 ```bash 
 python -m bsddconverter.gui
-
-```markdown
-📁 Recommended Project Structure:
-.
-├── src/
-│   └── bsddconverter/
-│       ├── gui.py
-│       ├── mapper.py
-│       ├── __init__.py
-├── templates/
-├── data/
-├── requirements.txt
-├── pyproject.toml
+```
 
 ## Requirements (for development)
 
