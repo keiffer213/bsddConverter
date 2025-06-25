@@ -39,6 +39,11 @@ def run_excel2bsdd_conversion(excel_path, template_path, output_path, remove_nul
         result = clean_nones(result)
     if result is None:
         raise ValueError("Conversion result is None. Please check input files.")
+    
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
@@ -92,7 +97,7 @@ def map_data(excel_data, bsdd_part_template, name=""):
     excel_data = excel_data.astype(object).replace(np.nan, None)
     new_objects = []
 
-    for index, row in tqdm(excel_data.iterrows(), desc=f"Processing {name}", unit=" items", total=len(excel_data)):
+    for index, row in tqdm(excel_data.iterrows(), desc=f"Processing {name}", unit=" items", total=len(excel_data), disable=True):
         if not excel_data.dropna(how="all").empty:
             new_object = deepcopy(template)
             for column_name, column_data in row.items():
