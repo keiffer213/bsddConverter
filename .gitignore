@@ -1,5 +1,38 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
 
-# pycache
-.pyc
-/.pytest_cache
-/tests/_pycache_
+# Environment files
+.env
+.venv/
+venv/
+env/
+*.env
+
+# Build artifacts
+build/
+dist/
+*.spec
+build_output/
+
+# PyInstaller output
+*.exe
+
+# Unit test cache
+.pytest_cache/
+.cache/
+coverage.*
+
+# IDE/Editor configs
+.vscode/
+.idea/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temp
+*.log
+*.tmp
