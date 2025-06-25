@@ -23,6 +23,15 @@ def select_template_file(entry):
         entry.delete(0, END)
         entry.insert(0, filename)
 
+def select_output_file(entry):
+    """
+    Opens a file dialog and returns the selected file path for the output JSON file.
+    """
+    filename = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+    if filename:
+        entry.delete(0, END)
+        entry.insert(0, filename)
+
 def run_converter(excel_entry, template_entry, output_name_entry, nulls_var):
     """
     Runs the conversion process when the Run Converter button is clicked.
@@ -71,6 +80,7 @@ def main():
     Label(mainframe, text="Output Name:").grid(row=2, column=0, sticky="e", pady=5)
     output_name_entry = Entry(mainframe, width=60)
     output_name_entry.grid(row=2, column=1)
+    Button(mainframe, text="Browse", command=lambda: select_output_file(output_name_entry)).grid(row=2, column=2, padx=5)
 
     nulls_var = BooleanVar()
     Checkbutton(mainframe, text="Remove nulls", variable=nulls_var).grid(row=3, column=1, sticky="w")
