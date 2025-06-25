@@ -38,6 +38,12 @@ Run Command Prompt:
 pyinstaller --onefile --name bsddconverter --windowed --paths src --collect-submodules openpyxl src/bsddconverter/gui.py --distpath build_output/dist --workpath build_output/build --exclude-module tests --exclude-module pytest --specpath build_output/spec
 ```
 
+```bash
+pyinstaller --onefile --name bsddconverter --windowed --paths src --collect-submodules openpyxl --collect-submodules tqdm --collect-submodules pandas --collect-submodules numpy  --hidden-import=tkinter --distpath build_output/dist --workpath build_output/build --specpath build_output/spec --exclude-module tests --exclude-module pytest src/bsddconverter/gui.py
+```
+
+
+
 append with "--console" if you would like the .exe file to open with the terminal
 
 ## Run the GUI
