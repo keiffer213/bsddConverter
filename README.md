@@ -72,7 +72,7 @@ Tests validate your GUI converter by comparing its JSON output to the known-good
 Install all dependencies:
 ```bash
 pip install -r requirements.txt
-
+```
 
 📬 Contact
 Maintained by @keiffer213.
