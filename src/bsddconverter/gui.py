@@ -1,8 +1,9 @@
 import os
+import sys
 from tkinter import Tk, Frame, Label, Entry, Button, Checkbutton, BooleanVar, END, filedialog, messagebox
 from bsddconverter.mapper import run_excel2bsdd_conversion
 
-HERE        = os.path.dirname(__file__)
+HERE = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(HERE, os.pardir, os.pardir))
 
 def select_file(entry):
@@ -32,24 +33,24 @@ def select_output_file(entry):
         entry.delete(0, END)
         entry.insert(0, filename)
 
-def run_converter(excel_entry, template_entry, output_name_entry, nulls_var):
+def run_converter(excel_entry, template_entry, output_path_entry, nulls_var):
     """
     Runs the conversion process when the Run Converter button is clicked.
     """
-
     excel_path = excel_entry.get().strip()
     template_path = template_entry.get().strip()
-    output_name = output_name_entry.get().strip()
+    output_path = output_path_entry.get().strip()
     without_nulls = nulls_var.get()
 
-    if not (excel_path and template_path and output_name):
-        messagebox.showerror("Missing Info", "Please fill in all fields.")
+    if not excel_path:
+        messagebox.showerror("Missing Info", "Please select an Excel file.")
         return
-
-    # Create result directory if it doesn't exist
-    RESULT_DIR = os.path.join(PROJECT_ROOT, 'result')
-    os.makedirs(RESULT_DIR, exist_ok=True)
-    output_path = os.path.join(RESULT_DIR, f"{output_name}.json")
+    if not template_path:
+        messagebox.showerror("Missing Info", "Please select a JSON template.")
+        return
+    if not output_path:
+        messagebox.showerror("Missing Info", "Please provide an output path.")
+        return
 
     try:
         run_excel2bsdd_conversion(excel_path, template_path, output_path, remove_nulls=without_nulls)
@@ -64,7 +65,6 @@ def main():
     app.geometry("600x225")
 
     mainframe = Frame(app)
-    # mainframe.grid(column=0, row=0, sticky="nsew", padx=50, pady=50)
     mainframe.pack(padx=20, pady=25)
 
     Label(mainframe, text="Excel File:").grid(row=0, column=0, sticky="e", padx=5, pady=5)
