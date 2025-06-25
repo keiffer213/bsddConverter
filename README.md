@@ -34,15 +34,11 @@ A desktop Python application that converts structured Excel files into valid bSD
 ## Pyinstaller Packaging
 Run Command Prompt: 
 
-pyinstaller --onefile --name bsddconverter --windowed --paths src --add-data "templates;templates" --add-data "data;data" --hidden-import openpyxl --hidden-import et_xmlfile  --hidden-import jdcal src/bsddconverter/gui.py
-
-pyinstaller --onefile --name bsddconverter --windowed --paths src --add-data "templates;templates" --add-data "data;data" --collect-submodules openpyxl src/bsddconverter/gui.py
-
-<!-- Build Ouput Path excluding tests -->
+```bash
 pyinstaller --onefile --name bsddconverter --windowed --paths src --collect-submodules openpyxl src/bsddconverter/gui.py --distpath build_output/dist --workpath build_output/build --exclude-module tests --exclude-module pytest --specpath build_output/spec
+```
 
-<!-- Build Ouput Path excluding tests with console -->
-pyinstaller --onefile --name bsddconverter --windowed --paths src --collect-submodules openpyxl src/bsddconverter/gui.py --distpath build_output/dist --workpath build_output/build --exclude-module tests --exclude-module pytest --specpath build_output/spec --console
+append with "--console" if you would like the .exe file to open with the terminal
 
 ## Run the GUI
 Navigate to the root folder then use:
